@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag (e.g. desktop-v0.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-dmg:
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: desktop
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: ver
+        run: |
+          REF="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$REF" >> "$GITHUB_OUTPUT"
+          echo "version=${REF#desktop-v}" >> "$GITHUB_OUTPUT"
+
+      - name: Install tools
+        run: brew install xcodegen create-dmg
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build (Release, unsigned)
+        run: |
+          xcodebuild \
+            -project Dotpad.xcodeproj \
+            -scheme Dotpad \
+            -configuration Release \
+            -derivedDataPath build/dd \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Stage app
+        run: |
+          mkdir -p build/dmg
+          cp -R "build/dd/Build/Products/Release/Dotpad.app" build/dmg/
+
+      - name: Create unsigned DMG
+        run: |
+          create-dmg \
+            --volname "Dotpad" \
+            --volicon "build/dmg/Dotpad.app/Contents/Resources/AppIcon.icns" \
+            --window-pos 200 120 \
+            --window-size 500 320 \
+            --icon-size 110 \
+            --icon "Dotpad.app" 130 150 \
+            --hide-extension "Dotpad.app" \
+            --app-drop-link 370 150 \
+            "Dotpad-${{ steps.ver.outputs.version }}.dmg" \
+            "build/dmg/Dotpad.app" \
+          || hdiutil create -volname "Dotpad" -srcfolder "build/dmg" -ov -format UDZO "Dotpad-${{ steps.ver.outputs.version }}.dmg"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Dotpad ${{ steps.ver.outputs.version }}
+          files: desktop/Dotpad-${{ steps.ver.outputs.version }}.dmg
+          fail_on_unmatched_files: true
+          body: |
+            Unsigned macOS build. Gatekeeper will warn on first launch —
+            right-click the app → Open, or run:
+            `xattr -dr com.apple.quarantine /Applications/Dotpad.app`
