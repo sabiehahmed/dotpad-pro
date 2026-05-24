@@ -1,0 +1,22 @@
+# XcodeGen output — regenerate with `xcodegen generate`
+Dotpad.xcodeproj/
+
+# Build artifacts
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+
+# Xcode
+*.xcworkspace/xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store

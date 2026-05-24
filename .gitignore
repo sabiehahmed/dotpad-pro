@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Build outputs
+build/
+dist/
+DerivedData/
+
+# Logs
+*.log
+
+# Desktop (Xcode / XcodeGen)
+desktop/Dotpad.xcodeproj/
+desktop/build/
+desktop/DerivedData/
+desktop/.build/
+desktop/.swiftpm/
+**/xcuserdata/
