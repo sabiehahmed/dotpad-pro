@@ -13,7 +13,7 @@ struct BulletItem: Identifiable, Equatable {
 /// plus the pure list-continuation logic used by the editor coordinator.
 enum SmartBullets {
 
-    // MARK: Catalog (screenshot-faithful)
+    // MARK: Catalog
 
     static let smart: [BulletItem] = [
         .init(id: "circle",   glyph: "●", inserts: "○ ", kind: .smart),
@@ -46,14 +46,11 @@ enum SmartBullets {
         .init(id: "diamondX", glyph: "◈",  inserts: "◈ ",  kind: .plain),
     ]
 
-    // MARK: Continuation engine (pure, unit-tested)
+    // MARK: Continuation engine (pure)
 
-    /// Markers that auto-continue on Return. Includes both toggle states so a
-    /// continued/checked line is still recognized.
     static let continuingMarkers: [String] =
         ["○", "●", "□", "■", "▷", "▶", "☆", "★", "-", "+", "✓", "❌", "✅", "⭕️", "🔴"]
 
-    /// Maps a marker to its toggled counterpart (for checkbox clicks).
     static let togglePairs: [String: String] = [
         "○": "●", "●": "○",
         "□": "■ ", "■": "□",
@@ -62,7 +59,6 @@ enum SmartBullets {
         "⭕️": "🔴", "🔴": "⭕️",
     ]
 
-    /// Builds a toggle dict from user-defined pairs.
     static func togglePairs(from pairs: [SmartBulletPair]) -> [String: String] {
         var dict: [String: String] = [:]
         for pair in pairs where !pair.start.isEmpty && !pair.finish.isEmpty {
@@ -72,7 +68,6 @@ enum SmartBullets {
         return dict
     }
 
-    /// All continuation markers including user-defined pairs.
     static func allMarkers(from pairs: [SmartBulletPair]) -> [String] {
         var result = continuingMarkers
         for pair in pairs {
@@ -89,7 +84,6 @@ enum SmartBullets {
         let marker: String
     }
 
-    /// Detects a leading bullet marker on a line (after optional indent).
     static func detect(line: String) -> LineBullet? {
         detect(line: line, using: continuingMarkers)
     }
@@ -105,8 +99,6 @@ enum SmartBullets {
         return nil
     }
 
-    /// True when the line holds only indent + marker (no content) — i.e. an
-    /// empty bullet, which terminates the list on Return.
     static func isEmptyBullet(line: String, bullet: LineBullet) -> Bool {
         let prefixLen = bullet.indent.count + bullet.marker.count
         let after = String(line.dropFirst(prefixLen))
@@ -114,12 +106,11 @@ enum SmartBullets {
     }
 
     enum ReturnAction: Equatable {
-        case none                       // not a bullet line — default newline
-        case clearLine(prefixLength: Int) // empty bullet — strip the marker
-        case continueList(insert: String) // non-empty — newline + indent + marker
+        case none
+        case clearLine(prefixLength: Int)
+        case continueList(insert: String)
     }
 
-    /// Decides what Return should do given the current line text.
     static func handleReturn(line: String) -> ReturnAction {
         handleReturn(line: line, markers: continuingMarkers)
     }

@@ -28,6 +28,7 @@ struct SettingsView: View {
     }
 
     @State private var tab: Tab = .control
+    @State private var showingBulletSettings = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -62,11 +63,17 @@ struct SettingsView: View {
     }
 
     @ViewBuilder private var content: some View {
-        switch tab {
-        case .control: control
-        case .appearance: appearance
-        case .behavior: behavior
-        case .more: more
+        if showingBulletSettings {
+            SmartBulletsSettingsView(prefs: prefs) {
+                showingBulletSettings = false
+            }
+        } else {
+            switch tab {
+            case .control: control
+            case .appearance: appearance
+            case .behavior: behavior
+            case .more: more
+            }
         }
     }
 
@@ -111,7 +118,7 @@ struct SettingsView: View {
             Toggle("Show dot color on menu bar icon", isOn: $prefs.showDotColorOnMenuBar)
             HStack {
                 Text("Smart Bullets:")
-                Button("Customize…") {}
+                Button("Customize…") { showingBulletSettings = true }
             }
         }
     }

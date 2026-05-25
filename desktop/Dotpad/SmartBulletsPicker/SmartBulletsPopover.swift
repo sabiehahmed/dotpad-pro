@@ -10,13 +10,46 @@ struct SmartBulletsPopover: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            section("SMART BULLETS", items: SmartBullets.smart)
+            smartSection
             section("DIVIDERS", items: SmartBullets.dividers)
             section("BULLETS", items: SmartBullets.plain)
         }
         .padding(18)
         .frame(width: 320)
         .background(theme.chromeBackground)
+    }
+
+    private var smartSection: some View {
+        let pairs = Preferences.shared.smartBulletPairs.filter { !$0.start.isEmpty }
+        return VStack(alignment: .leading, spacing: 10) {
+            Text("SMART BULLETS")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(theme.secondaryText)
+                .tracking(0.6)
+            LazyVGrid(columns: columns, spacing: 8) {
+                ForEach(pairs) { pair in
+                    Button {
+                        actions.insertAtCaret?(pair.start + " ")
+                        actions.focus?()
+                        onPick()
+                    } label: {
+                        VStack(spacing: 1) {
+                            Text(pair.start)
+                                .font(.system(size: 14))
+                            if !pair.finish.isEmpty {
+                                Text(pair.finish)
+                                    .font(.system(size: 12))
+                                    .opacity(0.6)
+                            }
+                        }
+                        .foregroundStyle(theme.textColor)
+                        .frame(width: 34, height: pair.finish.isEmpty ? 28 : 40)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
     }
 
     private func section(_ title: String, items: [BulletItem]) -> some View {

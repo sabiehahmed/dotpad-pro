@@ -11,7 +11,7 @@ struct DotTextView: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(store: store, actions: actions) }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let scroll = NSTextView.scrollableTextView()
+        let scroll = DotNSTextView.makeScrollView()
         scroll.drawsBackground = false
         scroll.hasVerticalScroller = true
         scroll.autohidesScrollers = true
@@ -162,7 +162,8 @@ struct DotTextView: NSViewRepresentable {
 
         private func handleReturn(_ tv: NSTextView) -> Bool {
             let line = currentLine(tv)
-            switch SmartBullets.handleReturn(line: line.text) {
+            let markers = SmartBullets.allMarkers(from: Preferences.shared.smartBulletPairs)
+            switch SmartBullets.handleReturn(line: line.text, markers: markers) {
             case .none:
                 return false
             case .continueList(let insert):
@@ -183,7 +184,8 @@ struct DotTextView: NSViewRepresentable {
 
         private func handleIndent(_ tv: NSTextView) -> Bool {
             let line = currentLine(tv)
-            guard SmartBullets.detect(line: line.text) != nil else { return false }
+            let markers = SmartBullets.allMarkers(from: Preferences.shared.smartBulletPairs)
+            guard SmartBullets.detect(line: line.text, using: markers) != nil else { return false }
             let at = NSRange(location: line.range.location, length: 0)
             if tv.shouldChangeText(in: at, replacementString: "\t") {
                 tv.replaceCharacters(in: at, with: "\t")
@@ -203,5 +205,77 @@ struct DotTextView: NSViewRepresentable {
             }
             return true
         }
+    }
+}
+
+// MARK: - DotNSTextView
+
+private final class DotNSTextView: NSTextView {
+    static func makeScrollView() -> NSScrollView {
+        let textContainer = NSTextContainer(containerSize: NSSize(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: CGFloat.greatestFiniteMagnitude
+        ))
+        textContainer.widthTracksTextView = true
+        textContainer.heightTracksTextView = false
+
+        let layoutManager = NSLayoutManager()
+        layoutManager.addTextContainer(textContainer)
+
+        let storage = NSTextStorage()
+        storage.addLayoutManager(layoutManager)
+
+        let textView = DotNSTextView(frame: .zero, textContainer: textContainer)
+        textView.autoresizingMask = [.width]
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        textView.minSize = NSSize(width: 0, height: 0)
+
+        let scroll = NSScrollView()
+        scroll.documentView = textView
+        return scroll
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        if tryToggleBullet(event: event) { return }
+        super.mouseDown(with: event)
+    }
+
+    private func tryToggleBullet(event: NSEvent) -> Bool {
+        let point = convert(event.locationInWindow, from: nil)
+        guard let lm = layoutManager, let tc = textContainer else { return false }
+        let inset = textContainerInset
+        let adjustedPoint = NSPoint(x: point.x - inset.width, y: point.y - inset.height)
+        let charIndex = lm.characterIndex(
+            for: adjustedPoint, in: tc,
+            fractionOfDistanceBetweenInsertionPoints: nil
+        )
+        let ns = string as NSString
+        guard charIndex < ns.length else { return false }
+
+        let lineRange = ns.lineRange(for: NSRange(location: charIndex, length: 0))
+        var lineText = ns.substring(with: lineRange)
+        if lineText.hasSuffix("\n") { lineText.removeLast() }
+
+        let pairs = Preferences.shared.smartBulletPairs
+        let markers = SmartBullets.allMarkers(from: pairs)
+        guard let bullet = SmartBullets.detect(line: lineText, using: markers) else { return false }
+
+        // Only toggle when click lands within the marker region (NSString-safe lengths)
+        let indentNSLen = (bullet.indent as NSString).length
+        let markerNSLen = (bullet.marker as NSString).length
+        let clickOffset = charIndex - lineRange.location
+        guard clickOffset < indentNSLen + markerNSLen else { return false }
+
+        let toggleDict = SmartBullets.togglePairs(from: pairs)
+        guard let toggled = toggleDict[bullet.marker] else { return false }
+
+        let markerRange = NSRange(location: lineRange.location + indentNSLen, length: markerNSLen)
+        if shouldChangeText(in: markerRange, replacementString: toggled) {
+            replaceCharacters(in: markerRange, with: toggled)
+            didChangeText()
+        }
+        return true
     }
 }

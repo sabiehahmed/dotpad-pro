@@ -36,39 +36,33 @@ enum AppTheme: String, CaseIterable, Identifiable {
     }
 }
 
-enum ActivateWith: String, CaseIterable, Identifiable {
-    case menuBarIcon, bothIcons
-    var id: String { rawValue }
+enum FontSizeOption: Int, CaseIterable, Identifiable {
+    case small = 15, medium = 17, large = 19, xlarge = 22
+    var id: Int { rawValue }
     var label: String {
         switch self {
-        case .menuBarIcon: return "Menu Bar Icon"
-        case .bothIcons: return "Both Icons"
+        case .small: return "Small"
+        case .medium: return "Medium"
+        case .large: return "Large"
+        case .xlarge: return "Extra Large"
         }
     }
 }
 
-/// UserDefaults-backed settings, surfaced to the 4 settings tabs.
+/// UserDefaults-backed settings, surfaced to the settings screens.
 final class Preferences: ObservableObject {
     static let shared = Preferences()
 
     @AppStorage("theme") var theme: AppTheme = .dark
     @AppStorage("colorHighlights") var colorHighlights: Bool = true
-    @AppStorage("vibrantBackground") var vibrantBackground: Bool = true
-    @AppStorage("showDotNumberInTitle") var showDotNumberInTitle: Bool = false
-    @AppStorage("showDotColorOnMenuBar") var showDotColorOnMenuBar: Bool = true
+    @AppStorage("accentBackground") var accentBackground: Bool = true
+    @AppStorage("fontSize") var fontSize: FontSizeOption = .medium
 
-    @AppStorage("activateWith") var activateWith: ActivateWith = .menuBarIcon
-    @AppStorage("startAtLogin") var startAtLogin: Bool = false
-
-    /// Carbon key code + modifier mask for the global show-window hot key.
-    @AppStorage("hotKeyCode") var hotKeyCode: Int = 0
-    @AppStorage("hotKeyModifiers") var hotKeyModifiers: Int = 0
-
-    @AppStorage("escapeClosesWindow") var escapeClosesWindow: Bool = true
-    @AppStorage("floatingWindow") var floatingWindow: Bool = false
-    @AppStorage("hotkeyFollowsMouse") var hotkeyFollowsMouse: Bool = false
     @AppStorage("autoIndentLists") var autoIndentLists: Bool = true
     @AppStorage("indentPlainText") var indentPlainText: Bool = false
+    @AppStorage("autocorrect") var autocorrect: Bool = true
+    @AppStorage("smartDashes") var smartDashes: Bool = false
+    @AppStorage("hapticFeedback") var hapticFeedback: Bool = true
 
     @AppStorage("smartBulletPairsJSON") private var smartBulletPairsJSON: String = ""
 
@@ -81,6 +75,7 @@ final class Preferences: ObservableObject {
             return pairs
         }
         set {
+            objectWillChange.send()
             guard let data = try? JSONEncoder().encode(newValue),
                   let str = String(data: data, encoding: .utf8) else { return }
             smartBulletPairsJSON = str

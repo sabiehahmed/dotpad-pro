@@ -16,3 +16,10 @@ desktop/DerivedData/
 desktop/.build/
 desktop/.swiftpm/
 **/xcuserdata/
+
+# Mobile iOS (Xcode / XcodeGen)
+mobile/IOS/Dotpad.xcodeproj/
+mobile/IOS/build/
+mobile/IOS/DerivedData/
+mobile/IOS/.build/
+mobile/IOS/.swiftpm/
