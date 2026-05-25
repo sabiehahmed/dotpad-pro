@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="/assets/notepad.svg" alt="dotLottie Web" width="550" />
+</p>
+
 # Dotpad
 
 A tiny, fast scratchpad for thoughts and lists — a Tot-style multi-dot note
