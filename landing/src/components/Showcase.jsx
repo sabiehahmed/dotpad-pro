@@ -60,11 +60,11 @@ export default function Showcase() {
                 <span className="serif" style={{ color: 'var(--d-cyan)', fontSize: '28px' }}>End&#8209;to&#8209;end.</span>
               </h3>
               <p style={{ color: 'var(--ink-dim)', fontSize: '14px', lineHeight: 1.5, margin: 0 }}>
-                Your dots follow you across every Mac, iPhone, and iPad. Encrypted on-device.
+                On the roadmap: your dots following you across every Mac, iPhone, and iPad — encrypted on-device.
               </p>
               <div style={{ marginTop: 'auto', paddingTop: '24px', display: 'flex', gap: '10px', alignItems: 'center', color: 'var(--ink-quiet)', fontFamily: "'Geist Mono',monospace", fontSize: '11px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--d-mint)', boxShadow: '0 0 8px var(--d-mint)', animation: 'pulseGlow 1.6s ease-in-out infinite' }} />
-                <span>SYNCED · 3 DEVICES</span>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--d-amber)', boxShadow: '0 0 8px var(--d-amber)' }} />
+                <span>COMING SOON</span>
               </div>
             </div>
 

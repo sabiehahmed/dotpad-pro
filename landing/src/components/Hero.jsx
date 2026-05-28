@@ -94,8 +94,6 @@ export default function Hero() {
         <span className="mono">macOS 13+</span>
         <span style={{ opacity: 0.4 }}>·</span>
         <span><b>Free</b> &amp; Open Source · MIT</span>
-        <span style={{ opacity: 0.4 }}>·</span>
-        <span><b>4.2k</b> ★ on GitHub</span>
       </div>
 
       {/* 3D Scene */}

@@ -15,7 +15,7 @@ export default function CTA() {
       <div className="hero-actions">
         <a className="btn btn-primary" href="https://github.com/sabiehahmed/dotpad-pro/releases" target="_blank" rel="noopener noreferrer">
           <AppleIcon />
-          Download for Mac · 14 MB
+          Download for Mac · 3.1 MB
         </a>
         <a className="btn" href="https://github.com/sabiehahmed/dotpad-pro" target="_blank" rel="noopener noreferrer">★ Star on GitHub</a>
       </div>
