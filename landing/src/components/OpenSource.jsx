@@ -27,9 +27,9 @@ export default function OpenSource() {
           </div>
           <p>Star us, file an issue, or open a PR. We review every contribution.</p>
           <div className="oscard-stats">
-            <span><b>4.2k</b> ★</span>
-            <span><b>318</b> forks</span>
-            <span><b>24</b> contributors</span>
+            <span><b>Swift</b></span>
+            <span><b>SwiftUI</b></span>
+            <span><b>macOS · iOS</b></span>
           </div>
         </a>
 
@@ -58,8 +58,8 @@ export default function OpenSource() {
           </div>
           <p>DotPad is free, but caffeine is not. Sponsor on GitHub or Ko-fi if it sparks joy.</p>
           <div className="oscard-stats">
-            <span><b>312</b> sponsors</span>
-            <span><b>$4</b>+ / month</span>
+            <span><b>GitHub</b> Sponsors</span>
+            <span><b>Ko-fi</b></span>
           </div>
         </a>
       </div>
